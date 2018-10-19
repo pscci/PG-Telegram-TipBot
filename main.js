@@ -1,5 +1,6 @@
 const Telegraf = require('telegraf')
-const {Markup, Extra} = require('telegraf')
+const Extra = require('telegraf/extra')
+const Markup = require('telegraf/markup')
 const dateformat = require('dateformat')
 const usernamebot = '@bljrtgbot' //ganti atau sesuaikan dengan username bot kamu
 
@@ -27,6 +28,7 @@ bot.on('message', (ctx) => {
     
       var msg = ctx.message.text.toLowerCase(), //<== Berfungsi mengubah pesan menjadi huruf kecil semua
           pesan = msg.replace(/\s\s+/g, ' '), //<== Menghapus kelebihan spasi
+
           msgid = ctx.message.message_id,
           chatid = ctx.chat.id,
           userid = ctx.from.id,
@@ -122,9 +124,94 @@ bot.on('message', (ctx) => {
                 }
         break;
            
+        //Contoh-contoh Lainnya
+          
+        //Menampilkan Info BOT
+        case '/bot': 
+        if (ctx.chat.type != 'private') {
+          ctx.telegram.getMe() .then ((data)=>{
+            
+            var pesan = `\ud83e\udd16 <b>Identitas Bot</b>\n\n`
+                pesan += `\ud83c\udd94 Bot: <code>${data.id}</code>\n`
+                pesan += ` \u251c \ud83d\udc64 Nama: <b>${data.first_name}</b>\n`
+                pesan += ` \u2514 \ud83d\udeb9 Username: @${data.username}`
+            
+            ctx.reply(pesan)  
+            ctx.replyWithHTML(`${pesan}`, Extra .inReplyTo(ctx.message.message_id)
+                 .markup((m) => m.inlineKeyboard([
+                 [m.urlButton(`Start Bot`, `https://telegram.me/${data.username}`)]
+                 ])
+              )) 
+          })
+        }
+        break;
+            
+        //Menampilkan Status di Group  
+        case '/status': case '!status':
+        if (ctx.chat.type != 'private') {
+            ctx.getChatMember(ctx.from.id) .then ((data)=>{
+            ctx.getChatMembersCount(ctx.chat.id) .then ((anggota) => { 
+              var usertipe = ctx.chat.username == undefined 
+                  ? ctx.chat.type == `supergroup`
+                    ? `\n \u2514 \ud83c\udf99 Tipe: <code>${ctx.chat.type}</code> (private)\n\n` 
+                    : `\n \u2514 \ud83c\udf99 Tipe: <code>${ctx.chat.type}</code>\n\n`
+                  : `\n \u251c \ud83d\udeb9 Username @${ctx.chat.username}\n \u2514 \ud83c\udf99 Tipe: <code>${ctx.chat.type}</code> (public)\n\n`,
+                  nmakhir = ctx.from.last_name == undefined ? `` : `\n \u251c \ud83d\udc64 Akhir: ${ctx.from.last_name}`,
+                  nmuser = ctx.from.username == undefined ? `` : `\n \u251c \ud83d\udeb9 Username @${ctx.from.username}`,
+                  bahasa = ctx.from.language_code == undefined ? `\n \u251c \ud83c\udfc1 Bahasa: en-US` : `\n \u251c \ud83c\udfc1 Bahasa: ${ctx.from.language_code}`,
+                  status = `\ud83c\udd94 Grup: <code>${ctx.chat.id}</code>\n \u251c \ud83d\udc65 <b>${ctx.chat.title}</b>${usertipe}`
+                  status += `\ud83c\udd94 User: <code>${ctx.from.id}</code>\n \u251c \ud83d\udc64 Nama: ${ctx.from.first_name}${nmakhir}${nmuser}`
+                  status += `${bahasa}\n \u2514 \ud83d\udd30 Level: <b>${data.status}</b>`
+                  status += `\n\n#\ufe0f\u20e3 Total: <code>${anggota}</code> anggota.`
+            ctx.reply(status)
+            ctx.replyWithHTML(`${status}`, Extra .inReplyTo(ctx.message.message_id))
+             })
+            })
+          }
+        break;  
+          
+        //Menampilkan Daftar Admin Group
+        case '/admin': case '!admin':
+          if (ctx.chat.type != 'private') {
+            ctx.getChatAdministrators(ctx.chat.id) .then ((result)=>{
+              
+              var data = result,
+              pesan ='\ud83d\udd30 <b>Administrator</b>\n',
+              jmlh = data.length - 1
+                
+              data.sort((a, b)=>{
+                return a.status > b.status
+              })
+                
+              for (var i = 0; i < (data.length); i++)
+              if (data[i].status == 'administrator') {
+                
+                var icon = (i == jmlh - 1) ? ' \u2514 ' : ' \u251c '
+                pesan += icon + (i + 1) +'. <a href="tg://user?id='+ data[i].user.id + '">' + data[i].user.first_name
+                pesan += data[i].user.last_name == undefined ? '</a>\n' : ' ' + data[i].user.last_name + '</a>\n'
+                
+              } else {
+                
+                var creator = data[i].user.last_name == undefined ? `<code>${data[i].user.first_name}</code>` : `<code>${data[i].user.first_name} ${data[i].user.last_name}</code>`
+                    creator += data[i].user.username == undefined ? '' : '\n🚹 @' + data[i].user.username 
+
+              }
+            ctx.getChatMembersCount(ctx.chat.id)
+                .then ((data) => { 
+                var line = `\u3030\u3030\u3030\u3030\u3030\u3030\u3030`
+                var total =  `\ud83d\udcb9 Total <code>${jmlh}</code> administrator dan <code>${data}</code> anggota.`
+                ctx.reply(pesan)
+                ctx.replyWithHTML(`\ud83d\udc65 <b>${ctx.chat.title}</b>\n\ud83c\udd94 <code>${ctx.chat.id}</code>\n${line}\n\ud83d\udd30 <b>Creator</b>\n👤 ${creator}\n\n${pesan}\n${total}`, 
+                              Extra .inReplyTo(ctx.message.message_id)
+                             )
+            })
+            })
+          }
+        break; 
+          
         //jika tidak didefinisikan alias tidak ada case yg cocok tampilkan default.
         default:
-          if (pesan.match(/bot/)){ //<= contoh pakai regex 
+          if (pesan.match(/hai/)){ //<= contoh pakai regex 
              ctx.reply('Hallo...')
           } else {
              ctx.reply('😍') 
