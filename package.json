@@ -1,0 +1,23 @@
+{
+  "name": "belajarbot",
+  "version": "2.2.3",
+  "description": "Belajar Membuat Telegram Bot",
+  "main": "main.js",
+  "scripts": {
+    "start": "node main.js"
+  },
+  "engines": {
+    "node": "6.x"
+  },
+  "repository": {
+    "url": "https://glitch.com/edit/#!/belajarbot"
+  },
+  "license": "MIT",
+  "keywords": [],
+  "author": "Masdad | @Msdad",
+  "dependencies": {
+    "telegraf": "^3.24.1",
+    "dateformat": "^3.0.3",
+    "date-diff": "^0.2.1"
+  }
+}
