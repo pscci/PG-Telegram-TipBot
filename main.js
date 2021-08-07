@@ -2,7 +2,7 @@ const Telegraf = require('telegraf')
 const Extra = require('telegraf/extra')
 const Markup = require('telegraf/markup')
 const dateformat = require('dateformat')
-const usernamebot = '@bljrtgbot' //ganti atau sesuaikan dengan username bot kamu
+const usernamebot = '@PGTipTokenBot' //ganti atau sesuaikan dengan username bot kamu
 
 const bot = new Telegraf(process.env.BOT_TOKEN) 
 const appName = process.env.PROJECT_NAME
